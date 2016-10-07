@@ -2,6 +2,8 @@
 A CHIP-8 emulator written in C++ to teach myself how to program a basic emulator.
 
 Font-Table:
+Storing the font lookup table from 0x0000 - 0x0010
+Storing font characters from 0x010 to 0x03E
 Lookup table for original font table:
 0 = 30
 1 = 39
