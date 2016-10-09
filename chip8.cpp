@@ -21,7 +21,7 @@ class Chip8
 	//timers
 	unsigned char delay_timer;
 	unsigned char sound_timer;
-	//Keypad
+	//Keypad key is pressed if value is 1 (e.g key[0xA] == 1 then "A" is pressed)
 	unsigned char key[16];
 	//fontset
 	unsigned char fontset[80];
@@ -38,11 +38,12 @@ class Chip8
 	sound_timer = 0;
 	
 	
-	//Reset registers and stack
+	//Reset registers, stack and keys
 	for(int i = 0; i < 16; i++)
 	{
 		V[i] = 0;
 		stack[i] = 0;
+		key[i] = 0;
 	}
 
 	//clear screen
@@ -239,25 +240,18 @@ class Chip8
 		switch(opcode & 0xF0FF)
 		{
 			case 0xE09E:
-				//loop through stored keys
-				for(int i = 0; i < 16; i++)
+				//check if key stored in V[X] is 1 (active)
+				if(key[V[(opcode & 0xFF00)] >> 8] == 1)
 				{
-					//check if key = value in register
-					if(key[i] == V[(opcode & 0xFF00) >> 8])
-					{
-						pc+=2;
-					}
+					pc+=2;
 				}
+		
 				break;
 			case 0xE0A1:
-				//loop throug hkeys
-				for (int i = 0; i < 16; i++)
+				//If the key isn't 1 (pressed) then skip
+				if(key[V[(opcode & 0x0F00) >> 8]] != 1)
 				{
-					//If the key isnt stored (hence been pressed) then TRUE
-					if( key[i] != V[(opcode & 0x0F00) >> 8])
-					{
-						pc += 2;
-					}
+					pc += 2;
 				}
 				break;
 			case 0xF007:

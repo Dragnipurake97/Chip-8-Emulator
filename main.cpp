@@ -6,6 +6,8 @@ int close(SDL_Window* gWindow);
 
 int main()
 {
+	unsigned char key[16];	
+
 	//Create Chip8 Object
 	
 	//Setup SDL2
@@ -14,6 +16,8 @@ int main()
 	SDL_Window* gWindow = NULL;
 	//SDL_Surface* gScreenSurface = NULL;
 	SDL_Renderer* gRenderer = NULL;
+	//Event for keys pressed
+	SDL_Event keysPressed;
 
 
 	//Initialise SDL
@@ -55,8 +59,62 @@ int main()
 	//Loop chip8.cycle() every second
 	
 
-	//store key presses
-	
+	//store key presses by looping through current keys pressed and
+	//sotring in chip8.keys[16] member and iterating the index by 1
+	while(SDL_PollEvent(&keysPressed))
+	{
+		switch (keysPressed.type)
+		{
+			case SDLK_1:
+				//set key[1] to 1 to indicate it's pressed
+				key[1] = 1;
+				break;
+			case SDLK_2:
+				key[2] = 1;
+				break;
+			case SDLK_3:
+				key[3] = 1;
+				break;
+			case SDLK_4:
+				key[0xC] = 1;
+			case SDLK_q:
+				key[4] = 1;
+				break;
+			case SDLK_w:
+				key[5] = 1;
+				break;
+			case SDLK_e:
+				key[6] = 1;
+				break;
+			case SDLK_r:
+				key[0xD] = 1;
+				break;
+			case SDLK_a:
+				key[7] = 1;
+				break;
+			case SDLK_s:
+				key[8] = 1;
+				break;
+			case SDLK_d:
+				key[9] = 1;
+				break;
+			case SDLK_f:
+				key[0xE] = 1;
+				break;
+			case SDLK_z:
+				key[0xA] = 1;
+				break;
+			case SDLK_x:
+				key[0] = 1;
+				break;
+			case SDLK_c:
+				key[0xB] = 1;
+				break;
+			case SDLK_v:
+				key[0xF] = 1;
+				break;
+		}
+	}	
 
 	//update graphics if drawflag is true
 	/*
