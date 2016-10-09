@@ -1,5 +1,5 @@
 # Chip-8-Emulator
-A CHIP-8 emulator written in C++ to teach myself how to program a basic emulator.
+A CHIP-8 emulator written in C++ to teach myself how to program a basic emulator. This will use SDL2 to handle graphics.
 
 Font-Table:
 Storing the font lookup table from 0x0000 - 0x0010
