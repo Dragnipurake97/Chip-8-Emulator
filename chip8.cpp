@@ -1,9 +1,11 @@
 #include <iostream>
 #include <cstdlib>
-#include <SDL2/SDL.h>
+#include <fstream>
+#include <string>
+
 
 class Chip8
-{
+{	
 	//16 registers (each holding 2 bytes named VX
 	unsigned char V[16];
 	//4k memory
@@ -23,12 +25,25 @@ class Chip8
 	unsigned char sound_timer;
 	//Keypad key is pressed if value is 1 (e.g key[0xA] == 1 then "A" is pressed)
 	unsigned char key[16];
-	//fontset
-	unsigned char fontset[80];
 
 
 	Chip8(void)
 	{
+	//fontset
+	unsigned char fontset[69] = {0x30, 0x39, 0x22, 0x2A, 0x3E, 				     0x20, 0x24, 0x34, 0x26, 0x28, 
+				     0x2E, 0x18, 0x14, 0x1C, 0x10, 
+				     0x12,                               //Lookup table
+				     0xF0, 0x80, 0xF0, 0x80, 0xF0,
+       				     0x80, 0x80, 0x80, 0xF0, 0x50,
+				     0x70, 0x50, 0xF0, 0x50, 0x50,
+				     0x50, 0xF0, 0x80, 0xF0, 0x10,
+				     0xF0, 0x80, 0xF0, 0x90, 0xF0,
+				     0x90, 0xF0, 0x90, 0xF0, 0x10,
+				     0xF0, 0x10, 0xF0, 0x90, 0xF0,
+				     0x90, 0x90, 0x90, 0xF0, 0x10,
+				     0x10, 0x10, 0x10, 0x60, 0x20,
+				     0x20, 0x20, 0x70, 0xA0, 0xA0,
+				     0xF0, 0x20, 0x20};
 	//Set all the various registers and such to default value
 	pc = 0x200;
 	opcode = 0;
@@ -53,16 +68,43 @@ class Chip8
 	}
 
 	//Load fontset
-	for(int i = 0; i < 80; i++)
+	for(int i = 0; i < 69; i++)
 	{
 		memory[i] = fontset[i];
 	}
 
-	//Load ROM
-	
 
 	}
 
+	void load(std::string rom_name)
+	{
+		std::streampos size;
+		char * mblock;
+		//std::ios::ate sets position to end of file so we can get the size
+		std::ifstream rom(rom_name.c_str(), std::ios::in|std::ios::binary|std::ios::ate);
+		if(rom.is_open())
+		{	
+			std::cout << "rom opened" << std::endl;
+			size = rom.tellg();
+			mblock = new char [size];
+			//Set position back to start of file
+			rom.seekg(0, std::ios::beg);
+			//Read memory into array called mblock
+			rom.read(mblock, size);
+			//close file
+			rom.close();
+			std::cout << "rom closed" << std::endl;
+		}
+
+		//Transfer memory from mblock to memory
+		for(int i = 0; i < size; i++)
+		{
+			//start at 0x200 as below that is reserved
+			memory[0x200 + i] = mblock[i];
+		}
+		std::cout << "Rom loaded" << std::endl;
+
+	}
 
 	void cycle()
 	{

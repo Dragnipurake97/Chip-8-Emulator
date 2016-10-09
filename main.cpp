@@ -56,6 +56,9 @@ int main()
 
 	//Load ROM
 	
+	//chip8.load("rom_name");
+
+
 	//Loop chip8.cycle() every second
 	
 
