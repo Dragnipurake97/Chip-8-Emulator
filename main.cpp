@@ -1,6 +1,6 @@
 #include <SDL2/SDL.h>
 #include <iostream>
-
+#include "chip8.h"
 
 int close(SDL_Window* gWindow);
 
@@ -9,7 +9,7 @@ int main()
 	unsigned char key[16];	
 
 	//Create Chip8 Object
-	
+	Chip8 chip8;
 	//Setup SDL2
 	int SCREEN_WIDTH = 640;
 	int SCREEN_HEIGHT = 320;
