@@ -3,11 +3,11 @@
 #include "chip8.h"
 
 int close(SDL_Window* gWindow);
+void getKeys(SDL_Event keysPressed, Chip8 chip8);
 
 int main()
-{
-	unsigned char key[16];	
-
+{	
+	bool drawFlag = true;
 	//Create Chip8 Object
 	Chip8 chip8;
 	//Setup SDL2
@@ -18,6 +18,10 @@ int main()
 	SDL_Renderer* gRenderer = NULL;
 	//Event for keys pressed
 	SDL_Event keysPressed;
+	//Pixel coordinates
+	int p_x;
+	int p_y;	
+
 
 
 	//Initialise SDL
@@ -44,95 +48,113 @@ int main()
 		}
 	}
 	
-	SDL_Delay(3000);
+	//Create black background
+	//SDL_Rect background = {0, 0, 320, 640};
+	SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
+	//SDL_RenderFillRect(gRenderer, &background);
+	
 
-	//Example pixel
-	SDL_Rect px = {10, 10, 10, 10};
-	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-	SDL_RenderFillRect(gRenderer, &px);
+	//Create pixel
+	SDL_Rect px;
 
+	//Update surface with background
 	SDL_UpdateWindowSurface( gWindow );
 	SDL_RenderPresent( gRenderer );
 
-	//Load ROM
-	
+
+	SDL_Delay(3000);
+
+
+	//Load ROM	
 	//chip8.load("rom_name");
 
-
-	//Loop chip8.cycle() every second
 	
 
-	//store key presses by looping through current keys pressed and
-	//sotring in chip8.keys[16] member and iterating the index by 1
+
+	//Loop
+	while(true)
+	{
+
+		//clear keys
+		chip8.clearKeys();
+
+		//store current keys pressed
+		getKeys(keysPressed, chip8);
+		
+		//Cycle 1 opcode
+		chip8.cycle();
+
+		chip8.updateScreen(gRenderer, px);
+		SDL_UpdateWindowSurface(gWindow);
+		SDL_RenderPresent(gRenderer);	
+	
+
+		//Delay 1sec
+		SDL_Delay(1000);
+	}
+
+	//Shutdown SDL
+	close(gWindow);
+	return 0;
+}
+
+
+void getKeys(SDL_Event keysPressed, Chip8 chip8)
+{	
 	while(SDL_PollEvent(&keysPressed))
 	{
 		switch (keysPressed.type)
 		{
 			case SDLK_1:
 				//set key[1] to 1 to indicate it's pressed
-				key[1] = 1;
+				chip8.key[1] = 1;
 				break;
 			case SDLK_2:
-				key[2] = 1;
+				chip8.key[2] = 1;
 				break;
 			case SDLK_3:
-				key[3] = 1;
+				chip8.key[3] = 1;
 				break;
 			case SDLK_4:
-				key[0xC] = 1;
+				chip8.key[0xC] = 1;
 			case SDLK_q:
-				key[4] = 1;
+				chip8.key[4] = 1;
 				break;
 			case SDLK_w:
-				key[5] = 1;
+				chip8.key[5] = 1;
 				break;
 			case SDLK_e:
-				key[6] = 1;
+				chip8.key[6] = 1;
 				break;
 			case SDLK_r:
-				key[0xD] = 1;
+				chip8.key[0xD] = 1;
 				break;
 			case SDLK_a:
-				key[7] = 1;
+				chip8.key[7] = 1;
 				break;
 			case SDLK_s:
-				key[8] = 1;
+				chip8.key[8] = 1;
 				break;
 			case SDLK_d:
-				key[9] = 1;
+				chip8.key[9] = 1;
 				break;
 			case SDLK_f:
-				key[0xE] = 1;
+				chip8.key[0xE] = 1;
 				break;
 			case SDLK_z:
-				key[0xA] = 1;
+				chip8.key[0xA] = 1;
 				break;
 			case SDLK_x:
-				key[0] = 1;
+				chip8.key[0] = 1;
 				break;
 			case SDLK_c:
-				key[0xB] = 1;
+				chip8.key[0xB] = 1;
 				break;
 			case SDLK_v:
-				key[0xF] = 1;
+				chip8.key[0xF] = 1;
 				break;
 		}
 	}	
-
-	//update graphics if drawflag is true
-	/*
-	if(drawFlag == true)
-	{
-		SDL_UpdateWindowSurface( gWindow );
-		SDL_RenderPresent( gRenderer );
-	}
-	*/
-	
-	SDL_Delay(3000);
-	
-	//Shutdown SDL
-	close(gWindow);
-	return 0;
 }
 
 

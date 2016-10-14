@@ -2,7 +2,7 @@
 #define CHIP8_H
 
 #include <string>
-
+#include <SDL2/SDL.h>
 
 class Chip8
 {
@@ -17,12 +17,17 @@ class Chip8
 		unsigned char screen[64 * 32];
 		unsigned char delay_timer;
 		unsigned char sound_timer;
-		unsigned char key[16];
+		//unsigned char key[16];
 		bool drawFlag;
 	public:
+		unsigned char key[16];
 		Chip8();
 		void load(std::string rom_name);
 		void cycle();
+		void updateScreen(SDL_Renderer* gRenderer, SDL_Rect px);
+		bool returnDraw();
+		void dumpRegisters();
+		void clearKeys();
 
 };
 

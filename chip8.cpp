@@ -189,7 +189,7 @@ void Chip8::cycle()
 		case 0xD000:
 			unsigned char x = V[(opcode & 0x0F00) >> 8];
 			unsigned char y = V[(opcode & 0x00F0) >> 4];
-			unsigned char height = opcode & 0xF;
+			unsigned char height = opcode & 0x000F;
 			unsigned short pixel;
 			//set carry register to 0
 			V[15] = 0;
@@ -353,6 +353,70 @@ void Chip8::cycle()
 		}
 	sound_timer--;
 	}
+
 }
 
+void Chip8::updateScreen(SDL_Renderer* gRenderer, SDL_Rect px)
+{
+	if(drawFlag == true)
+	{
+		//Clear current pixels
+		SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+		SDL_RenderClear(gRenderer);
+		for(int p = 0; p < (32 * 64); p++)
+		{
+			if(screen[p] == 1)
+			{
+				//x is %64 as remainder would be x coord and y is /64 as each ste of 64 elements is 1 line of x pixels
+				px = {((p % 64) * 10), ((p / 64) * 10), 10, 10};
+				SDL_RenderFillRect(gRenderer, &px);
+			}			
+		}
+		
+	}
+	//update screen
+	//SDL_UpdateWindowSurface(gWindow);
+	//SDL_RenderPresent(gRenderer);
+	//clear draw flag
+	drawFlag = false;
+}
+
+
+bool Chip8::returnDraw()
+{
+	return drawFlag;
+}
+
+void Chip8::dumpRegisters()
+{
+	std::cout << "Registers: " << std::endl;
+	for(int i = 0; i < 16; i++)
+	{
+		std::cout << "Register "<< i << " = " << V[i] << std::endl;
+	}
+	std::cout << "Opcode = " << opcode << std::endl;
+	std::cout << "Program Counter = " << pc << std::endl;
+	std::cout << "Index Register = " << I << std::endl;
+	std::cout << "Stack: " << std::endl;
+	for(int i = 0; i < 16; i++)
+	{
+		std::cout << "Stack level " << i << " = " << stack[i] << std::endl;
+	}
+	std::cout << "Stack Pointer = " << sp << std::endl;
+	std::cout << "Delay Timer = " << delay_timer << std::endl;
+	std::cout << "Sound Tomer = " << sound_timer << std::endl;
+	std::cout << "Keys: " << std::endl;
+	for(int i = 0; i < 16; i++)
+	{
+		std::cout << "Key " << i << " = " << key[i] << std::endl;
+	}
+}
+
+void Chip8::clearKeys()
+{
+	for(int i = 0; i < 16; i++)
+	{
+		key[i] = 0;
+	}	
+}
 
