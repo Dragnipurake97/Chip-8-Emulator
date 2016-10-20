@@ -1,13 +1,13 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
 #include "chip8.h"
 
 int close(SDL_Window* gWindow);
-void getKeys(SDL_Event keysPressed, Chip8 chip8);
+void getKeys(Chip8 chip8, SDL_Event keysPressed);
 
-int main()
+int main(int argc, char **argv)
 {	
-	bool drawFlag = true;
+	bool drawFlag = false;
 	//Create Chip8 Object
 	Chip8 chip8;
 	//Setup SDL2
@@ -16,11 +16,8 @@ int main()
 	SDL_Window* gWindow = NULL;
 	//SDL_Surface* gScreenSurface = NULL;
 	SDL_Renderer* gRenderer = NULL;
-	//Event for keys pressed
-	SDL_Event keysPressed;
-	//Pixel coordinates
-	int p_x;
-	int p_y;	
+
+	
 
 
 
@@ -49,13 +46,10 @@ int main()
 	}
 	
 	//Create black background
-	//SDL_Rect background = {0, 0, 320, 640};
 	SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
+	SDL_RenderClear(gRenderer);
 	//SDL_RenderFillRect(gRenderer, &background);
 	
-
-	//Create pixel
-	SDL_Rect px;
 
 	//Update surface with background
 	SDL_UpdateWindowSurface( gWindow );
@@ -66,10 +60,14 @@ int main()
 
 
 	//Load ROM	
-	//chip8.load("rom_name");
+	chip8.load("MISSILE");
 
 	
+	SDL_Event keysPressed;
+	
 
+	//Take snapshot of keyboard 
+	const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
 
 	//Loop
 	while(true)
@@ -78,19 +76,96 @@ int main()
 		//clear keys
 		chip8.clearKeys();
 
-		//store current keys pressed
-		getKeys(keysPressed, chip8);
+		//Get keys
+		//Update keyboard values
+		SDL_PumpEvents();
+		//Must use if so each value gets tested
+		if (currentKeyStates[SDL_SCANCODE_1])
+		{
+			//set key[1] to 1 to indicate it's pressed
+			chip8.key[1] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_2])
+		{
+			chip8.key[2] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_3])
+		{
+			chip8.key[3] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_4])
+		{
+			chip8.key[0xC] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_Q])
+		{
+			chip8.key[4] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_W])
+		{
+			chip8.key[5] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_E])
+		{
+			chip8.key[6] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_R])
+		{
+			chip8.key[0xD] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_A])
+		{
+			chip8.key[7] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_S])
+		{
+			chip8.key[8] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_D])
+		{
+			chip8.key[9] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_F])
+		{
+			chip8.key[0xE] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_Z])
+		{
+			chip8.key[0xA] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_X])
+		{
+			chip8.key[0] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_C])
+		{
+			chip8.key[0xB] = 1;
+		}
+		if (currentKeyStates[SDL_SCANCODE_V])
+		{
+			chip8.key[0xF] = 1;
+		}
+		//debug help
+		if (currentKeyStates[SDL_SCANCODE_P])
+		{
+			chip8.dumpRegisters();
+		}
+
 		
-		//Cycle 1 opcode
-		chip8.cycle();
+		//Start cycle for next opcode
+		drawFlag = chip8.cycle();
 
-		chip8.updateScreen(gRenderer, px);
-		SDL_UpdateWindowSurface(gWindow);
-		SDL_RenderPresent(gRenderer);	
-	
+		//Draw to screen if sprite was drawn
+		if (drawFlag == true)
+		{
+			std::cout << "Draw" << std::endl;
+			chip8.updateScreen(gRenderer);
+			SDL_UpdateWindowSurface(gWindow);
+			SDL_RenderPresent(gRenderer);
+		}
 
-		//Delay 1sec
-		SDL_Delay(1000);
+		//Delay by 16ms (1000/60) so 60 instructions second
+		SDL_Delay(16);
 	}
 
 	//Shutdown SDL
@@ -99,15 +174,17 @@ int main()
 }
 
 
-void getKeys(SDL_Event keysPressed, Chip8 chip8)
+void getKeys(Chip8 chip8)
 {	
-	while(SDL_PollEvent(&keysPressed))
+	SDL_Event keysPressed;
+	while(SDL_PollEvent(&keysPressed) != 0)
 	{
 		switch (keysPressed.type)
 		{
 			case SDLK_1:
 				//set key[1] to 1 to indicate it's pressed
 				chip8.key[1] = 1;
+				std::cout << "1" << std::endl;
 				break;
 			case SDLK_2:
 				chip8.key[2] = 1;
