@@ -8,7 +8,6 @@ A CHIP-8 emulator written in C++ to teach myself how to program a basic emulator
     * ROM too big
     * Uncompatible memory types
 4. Add crash handling
-5. Move pc+=2 to end of cycle
 
 ## Input
 Using control method from here: http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
