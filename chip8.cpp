@@ -11,10 +11,10 @@ Chip8::Chip8()
 {
 	//fontset
 	unsigned char fontset[69] = 
-					{0x30, 0x39, 0x22, 0x2A, 0x3E, 				     
-				     0x20, 0x24, 0x34, 0x26, 0x28, 
-				     0x2E, 0x18, 0x14, 0x1C, 0x10, 
-				     0x12,                               //Lookup table
+					{0x32, 0x3B, 0x24, 0x2C, 0x41, 				     
+				     0x22, 0x26, 0x36, 0x28, 0x2A, 
+				     0x31, 0x1A, 0x16, 0x1E, 0x12, 
+				     0x14,                               //Lookup table
 				     0xF0, 0x80, 0xF0, 0x80, 0xF0,
        				 0x80, 0x80, 0x80, 0xF0, 0x50,
 				     0x70, 0x50, 0xF0, 0x50, 0x50,
@@ -68,7 +68,6 @@ void Chip8::load(std::string rom_name)
 		{	
 			//Create array to take in binary file data
 			char * mblock;
-			std::cout << "rom opened" << std::endl;
 			size = rom.tellg();
 			mblock = new char [size];
 			//Set position back to start of file
@@ -77,7 +76,6 @@ void Chip8::load(std::string rom_name)
 			rom.read(mblock, size);
 			//close file
 			rom.close();
-			std::cout << "rom closed" << std::endl;
 
 			//Transfer memory from mblock to memory
 			for (int i = 0; i < size; i++)
@@ -85,7 +83,7 @@ void Chip8::load(std::string rom_name)
 				//start at 0x200 as below that is reserved
 				memory[0x200 + i] = mblock[i];
 			}
-			std::cout << "Rom loaded" << std::endl;
+			std::cout << "ROM LOADED" << std::endl;
 		}
 
 	}
@@ -97,6 +95,9 @@ bool Chip8::cycle()
 	//a 2 byte opcode, then incrment pc by 2 as used 2 places in memory
 	opcode = (memory[pc] << 8) | memory[pc + 1];
 	
+	//For debugging
+	std::cout << std::hex << opcode << std::endl;
+
 	//Decode & Execute
 	switch(opcode & 0xF000)
 	{
@@ -114,7 +115,9 @@ bool Chip8::cycle()
 					break;
 				case 0x000E:
 					//Load pc from stack to RTS
-					pc = stack[sp--];
+					pc = stack[sp];
+					sp--;
+					pc += 2;
 					break;
 			}
 			break;
@@ -124,12 +127,12 @@ bool Chip8::cycle()
 			break;
 		case 0x2000:
 			//Jump subroutine
-			stack[sp] = pc;
 			sp++;
+			stack[sp] = pc;
 			pc = (opcode & 0x0FFF);
 			break;
 		case 0x3000:
-			//Get register number, shit right by 8 to leave with 0x0F
+			//Skips the next instruction if VX equals NN
 			if(V[(opcode & 0x0F00) >> 8] == (opcode & 0x00FF))
 			{	
 				//increment pc by 4 to skip next instruction
@@ -141,6 +144,7 @@ bool Chip8::cycle()
 			}
 			break;
 		case 0x4000:
+			//Skips the next instruction if VX doesn't equal NN.
 			if(V[(opcode & 0x0F00) >> 8] != (opcode & 0x0FF))
 			{
 				pc+=4;
@@ -151,6 +155,7 @@ bool Chip8::cycle()
 			}
 			break;
 		case 0x5000:
+			//Skips the next instruction if VX equals VY.
 			if(V[(opcode & 0x0F00) >> 8] == V[(opcode & 0x00F0) >> 4])
 			{
 				pc+= 4;
@@ -161,14 +166,17 @@ bool Chip8::cycle()
 			}
 			break;
 		case 0x6000:
-			V[(opcode & 0x0F00) >> 8] = opcode & 0xFF;
+			//	Sets VX to NN.
+			V[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
 			pc += 2;
 			break;
 		case 0x7000:
-			V[(opcode & 0x0F00) >> 8] += opcode & 0x0FF;
+			//Adds NN to VX.
+			V[(opcode & 0x0F00) >> 8] += opcode & 0x00FF;
 			pc += 2;
 			break;
 		case 0x9000:
+			//	Skips the next instruction if VX doesn't equal VY.
 			if(V[(opcode & 0x0F00) >> 8] != V[(opcode & 0x00F0) >> 4])
 			{
 				pc += 4;
@@ -179,18 +187,25 @@ bool Chip8::cycle()
 			}
 			break;
 		case 0xA000:
+			//	Sets I to the address NNN.
 			I = opcode & 0x0FFF;
 			pc += 2;
 			break;
 		case 0xB000:
+			//Jumps to the address NNN plus V0.
 			pc = (opcode & 0x0FFF) + V[0];
 			break;
 		case 0xC000:
+			//Sets VX to the result of a bitwise and operation on a random number and NN.
 			srand(time(NULL));
-			V[(opcode & 0x0F00) >> 8] = (0x00FF & (std::rand() % 0xFF));
+			V[(opcode & 0x0F00) >> 8] = ((opcode &0x00FF) & (std::rand() % 0xFF));
 			pc += 2;
 			break;
 		case 0xD000:
+			//Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I;
+			//I value doesn’t change after the execution of this instruction. As described above, 
+			//VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesn’t happen
+			//http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/ - Taken from here
 			unsigned char x = V[(opcode & 0x0F00) >> 8];
 			unsigned char y = V[(opcode & 0x00F0) >> 4];
 			unsigned char height = opcode & 0x000F;
@@ -229,68 +244,74 @@ bool Chip8::cycle()
 	switch(opcode & 0xF00F)
 	{
 		case 0x8000:
+			//Sets VX to the value of VY.
 			V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4];
 			pc += 2;
 			break;
 		case 0x8001:
+			//Sets VX to VX or VY.
 			V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x0F00) >> 8] | V[(opcode & 0x00F0) >> 4];
 			pc += 2;
 			break;
 		case 0x8002:
+			//Sets VX to VX and VY.
 			V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x0F00) >> 8] & V[(opcode & 0x00F0) >> 4];
 			pc += 2;
 			break;
 		case 0x8003:
+			//Sets VX to VX xor VY.
 			V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x0F00) >> 8] ^ V[(opcode & 0x00F0) >> 4];
 			pc += 2;
 			break;
 		case 0x8004:
+			//Adds VY to VX.VF is set to 1 when there's a carry, and to 0 when there isn't.
 			if((V[(opcode & 0x0F00) >> 8] + V[(opcode & 0x00F0) >> 4]) > 255)
 			{
 				V[15] = 1;
-				//V[vx_index] += V[vy_index];
 			}
 			else
 			{
-				V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F) >> 4];
 				V[15] = 0;
 			}
+			V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F) >> 4];
 			pc += 2;
 			break;	
 		case 0x8005:
-			if((V[(opcode & 0x0F00) >> 8] - V[(opcode & 0x00F0) >> 4]) < 0)
+			//	VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
+			if((V[(opcode & 0x0F00) >> 8] < V[(opcode & 0x00F0) >> 4]))
 			{
 				V[15] = 1;
-				//V[vx_index] -= V[vy_index];
 			}
 			else
 			{
-				V[(opcode & 0x0F00) >> 8] -= V[(opcode & 0x00F0) >> 4];
 				V[15] = 0;
 			}
+			V[(opcode & 0x0F00) >> 8] -= V[(opcode & 0x00F0) >> 4];
 			pc += 2;
 			break;
 		case 0x8006:
-			V[15] = ((opcode & 0x0F00) >> 8) & (0x80 >> 7);
-			V[(opcode & 0x0F00) >> 8] >> 4;
+			//Shifts VX right by one. VF is set to the value of the least significant bit of VX before the shift.
+			V[15] = (V[(opcode & 0x0F00)] & -V[(opcode & 0x0F00)]);
+			V[(opcode & 0x0F00) >> 8] >>= 1;
 			pc += 2;
 			break;
 		case 0x8007:
-			if((V[(opcode & 0x00F0) >> 4] - V[(opcode & 0x0F00) >> 8]) < 0)
+			//Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
+			if((V[(opcode & 0x00F0) >> 4] < V[(opcode & 0x0F00) >> 8]))
 			{
 				V[15] = 0;
-				//V[vy_index] -= V[vx_index];
 			}
 			else
 			{
 				V[15] = 1;
-				V[(opcode & 0x00F0) >> 4] -= V[(opcode & 0x0F00) >> 8];
 			}
+			V[(opcode & 0x0F00) >> 4] = V[(opcode & 0x0F00) >> 8] - V[(opcode & 0x00F0) >> 4];
 			pc += 2;
 			break;
 		case 0x800E:
-			V[15] = V[(opcode & 0x0F00) >> 8] & 0x80;
-			V[(opcode & 0x0F00) >> 8] << 4;
+			//Shifts VX left by one. VF is set to the value of the most significant bit of VX before the shift.
+			V[15] = V[(opcode & 0x0F00) >> 8] >> 7;
+			V[(opcode & 0x0F00) >> 8] <<= 1;
 			pc += 2;
 			break;
 	}
@@ -298,6 +319,7 @@ bool Chip8::cycle()
 	switch(opcode & 0xF0FF)
 	{
 		case 0xE09E:
+			//Skips the next instruction if the key stored in VX is pressed.
 			//check if key stored in V[X] is 1 (active)
 			if(key[V[(opcode & 0x0F00)] >> 8] == 1)
 			{
@@ -309,6 +331,7 @@ bool Chip8::cycle()
 			}
 			break;
 		case 0xE0A1:
+			//Skips the next instruction if the key stored in VX isn't pressed.
 			//If the key isn't 1 (pressed) then skip
 			if(key[V[(opcode & 0x0F00) >> 8]] != 1)
 			{
@@ -317,41 +340,60 @@ bool Chip8::cycle()
 			else
 			{
 				pc += 2;
-			}
+			}	
 			break;
 		case 0xF007:
+			//	Sets VX to the value of the delay timer.
 			V[(opcode & 0x0F00) >> 8] = delay_timer;
 			pc += 2;
 			break;
 		case 0xF00A:
-			V[(opcode & 0x0F00) >> 8] = key[0];
-			pc += 2;
+			//A key press is awaited, and then stored in VX.
+			//Check for pressed key
+			for (unsigned char i = 0x00; i < 16; i++)
+			{
+				if (key[i] == 1)
+				{
+					V[(opcode & 0x0F00) >> 8] = i;
+					//Only increment if key was pressed, else will repeat cycle
+					pc += 2;
+					break;
+				}
+			}
 			break;
 		case 0xF015:
+			//	Sets the delay timer to VX.
 			delay_timer = V[(opcode & 0x0F00) >> 8];
 			pc += 2;
 			break;
 		case 0xF018:
+			//Sets the sound timer to VX.
 			sound_timer = V[(opcode & 0x0F00) >> 8];
 			pc += 2;
 			break;
 		case 0xF01E:
+			// Adds VX to I.
 			I += V[(opcode & 0x0F00) >> 8];
 			pc += 2;
 			break;
 		case 0x0F029:
-			//Font table is from 0x0000 - 0x0010 so the hex character alone will point to its alternative address 
+			//Sets I to the location of the sprite for the character in VX.Characters 0 - F(in hexadecimal) are represented by a 4x5 font.
+			//Font lookup table is from 0x0000 - 0x0010 so the hex character alone will point to its alternative address 
 			//Going to store fonts from address 0x0010 - 0x003E so add lookup address to that
-			I = 0x0010 + memory[V[(opcode & 0x0F00) >> 8] & 0x000F];
+			I = memory[V[(opcode & 0x0F00) >> 8] & 0xF];
 			pc += 2;
 			break;
 		case 0xF033:
+			//Stores the binary-coded decimal representation of VX, with the most significant of three digits at the address in I, the middle digit at I plus 1,
+			//and the least significant digit at I plus 2. (In other words, take the decimal representation of VX, 
+			//place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.)
 			memory[I] = V[(opcode & 0x0F00) >> 8] / 100;
 			memory[I + 1] = (V[(opcode & 0x0F00) >> 8] / 10) % 100;
 			memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10;
 			pc += 2;
 			break;
 		case 0xF055:
+			//Stores V0 to VX (including VX) in memory starting at address I.
 			for(int i = 0; i <= ((opcode & 0x0F00) >> 8); i++)
 			{
 				memory[I + i] = V[i];
@@ -359,6 +401,7 @@ bool Chip8::cycle()
 			pc += 2;
 			break;
 		case 0xF065:
+			//Fills V0 to VX (including VX) with values from memory starting at address I.
 			for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++)
 			{	
 				V[i] = memory[I + i];			
@@ -377,13 +420,13 @@ bool Chip8::cycle()
 
 	if(sound_timer > 0)
 	{
-	sound_timer--;
+		sound_timer--;
+		if (sound_timer == 0)
+		{
+			//beep
+		}
 	}
-	else
-	{
-		//Beep
-		std::cout << "Beep" << std::endl;
-	}
+
 
 	return drawFlag;
 

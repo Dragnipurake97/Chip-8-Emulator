@@ -2,8 +2,8 @@
 #include <iostream>
 #include "chip8.h"
 
+//Prototypes
 int close(SDL_Window* gWindow);
-void getKeys(Chip8 chip8, SDL_Event keysPressed);
 
 int main(int argc, char **argv)
 {	
@@ -16,9 +16,6 @@ int main(int argc, char **argv)
 	SDL_Window* gWindow = NULL;
 	//SDL_Surface* gScreenSurface = NULL;
 	SDL_Renderer* gRenderer = NULL;
-
-	
-
 
 
 	//Initialise SDL
@@ -48,7 +45,6 @@ int main(int argc, char **argv)
 	//Create black background
 	SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
 	SDL_RenderClear(gRenderer);
-	//SDL_RenderFillRect(gRenderer, &background);
 	
 
 	//Update surface with background
@@ -56,13 +52,10 @@ int main(int argc, char **argv)
 	SDL_RenderPresent( gRenderer );
 
 
-	SDL_Delay(3000);
-
-
 	//Load ROM	
-	chip8.load("MISSILE");
+	chip8.load("UFO");
 
-	
+	//Create event for processing key presses
 	SDL_Event keysPressed;
 	
 
@@ -76,7 +69,6 @@ int main(int argc, char **argv)
 		//clear keys
 		chip8.clearKeys();
 
-		//Get keys
 		//Update keyboard values
 		SDL_PumpEvents();
 		//Must use if so each value gets tested
@@ -158,80 +150,22 @@ int main(int argc, char **argv)
 		//Draw to screen if sprite was drawn
 		if (drawFlag == true)
 		{
-			std::cout << "Draw" << std::endl;
 			chip8.updateScreen(gRenderer);
 			SDL_UpdateWindowSurface(gWindow);
 			SDL_RenderPresent(gRenderer);
 		}
 
-		//Delay by 16ms (1000/60) so 60 instructions second
+		
+		//Debug delay
 		SDL_Delay(16);
+
+		//Delay by 16ms (1000/60) so 60 instructions second
+		//SDL_Delay(16);
 	}
 
 	//Shutdown SDL
 	close(gWindow);
 	return 0;
-}
-
-
-void getKeys(Chip8 chip8)
-{	
-	SDL_Event keysPressed;
-	while(SDL_PollEvent(&keysPressed) != 0)
-	{
-		switch (keysPressed.type)
-		{
-			case SDLK_1:
-				//set key[1] to 1 to indicate it's pressed
-				chip8.key[1] = 1;
-				std::cout << "1" << std::endl;
-				break;
-			case SDLK_2:
-				chip8.key[2] = 1;
-				break;
-			case SDLK_3:
-				chip8.key[3] = 1;
-				break;
-			case SDLK_4:
-				chip8.key[0xC] = 1;
-			case SDLK_q:
-				chip8.key[4] = 1;
-				break;
-			case SDLK_w:
-				chip8.key[5] = 1;
-				break;
-			case SDLK_e:
-				chip8.key[6] = 1;
-				break;
-			case SDLK_r:
-				chip8.key[0xD] = 1;
-				break;
-			case SDLK_a:
-				chip8.key[7] = 1;
-				break;
-			case SDLK_s:
-				chip8.key[8] = 1;
-				break;
-			case SDLK_d:
-				chip8.key[9] = 1;
-				break;
-			case SDLK_f:
-				chip8.key[0xE] = 1;
-				break;
-			case SDLK_z:
-				chip8.key[0xA] = 1;
-				break;
-			case SDLK_x:
-				chip8.key[0] = 1;
-				break;
-			case SDLK_c:
-				chip8.key[0xB] = 1;
-				break;
-			case SDLK_v:
-				chip8.key[0xF] = 1;
-				break;
-		}
-	}	
 }
 
 
