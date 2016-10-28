@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 
 
 	//Load ROM	
-	chip8.load("UFO");
+	chip8.load("TETRIS");
 
 	//Create event for processing key presses
 	SDL_Event keysPressed;
@@ -157,10 +157,12 @@ int main(int argc, char **argv)
 
 		
 		//Debug delay
-		SDL_Delay(16);
+		//SDL_Delay(40);
 
-		//Delay by 16ms (1000/60) so 60 instructions second
-		//SDL_Delay(16);
+
+
+		//Delay for 60hz roughly takes 2ms for a cycle but not perfect
+		SDL_Delay(10);
 	}
 
 	//Shutdown SDL

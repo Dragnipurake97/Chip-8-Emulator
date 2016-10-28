@@ -11,8 +11,8 @@ Chip8::Chip8()
 {
 	//fontset
 	unsigned char fontset[69] = 
-					{0x32, 0x3B, 0x24, 0x2C, 0x41, 				     
-				     0x22, 0x26, 0x36, 0x28, 0x2A, 
+					{0x32, 0x3B, 0x22, 0x2C, 0x40, 				     
+				     0x24, 0x24, 0x36, 0x28, 0x2A, 
 				     0x31, 0x1A, 0x16, 0x1E, 0x12, 
 				     0x14,                               //Lookup table
 				     0xF0, 0x80, 0xF0, 0x80, 0xF0,
@@ -96,7 +96,7 @@ bool Chip8::cycle()
 	opcode = (memory[pc] << 8) | memory[pc + 1];
 	
 	//For debugging
-	std::cout << std::hex << opcode << std::endl;
+	//std::cout << std::hex << opcode << std::endl;
 
 	//Decode & Execute
 	switch(opcode & 0xF000)
@@ -167,12 +167,12 @@ bool Chip8::cycle()
 			break;
 		case 0x6000:
 			//	Sets VX to NN.
-			V[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
+			V[(opcode & 0x0F00) >> 8] = (opcode & 0x00FF);
 			pc += 2;
 			break;
 		case 0x7000:
 			//Adds NN to VX.
-			V[(opcode & 0x0F00) >> 8] += opcode & 0x00FF;
+			V[(opcode & 0x0F00) >> 8] += (opcode & 0x00FF);
 			pc += 2;
 			break;
 		case 0x9000:
@@ -198,7 +198,7 @@ bool Chip8::cycle()
 		case 0xC000:
 			//Sets VX to the result of a bitwise and operation on a random number and NN.
 			srand(time(NULL));
-			V[(opcode & 0x0F00) >> 8] = ((opcode &0x00FF) & (std::rand() % 0xFF));
+			V[(opcode & 0x0F00) >> 8] = ((opcode & 0x00FF) & (std::rand() % 0xFF));
 			pc += 2;
 			break;
 		case 0xD000:
@@ -211,6 +211,7 @@ bool Chip8::cycle()
 			unsigned char height = opcode & 0x000F;
 			unsigned short pixel;
 			//set carry register to 0
+
 			V[15] = 0;
 			for (int yline = 0; yline < height; yline++)
 			{
@@ -265,7 +266,7 @@ bool Chip8::cycle()
 			break;
 		case 0x8004:
 			//Adds VY to VX.VF is set to 1 when there's a carry, and to 0 when there isn't.
-			if((V[(opcode & 0x0F00) >> 8] + V[(opcode & 0x00F0) >> 4]) > 255)
+			if((V[(opcode & 0x0F00) >> 8] + V[(opcode & 0x00F0) >> 4]) > 0xFF)
 			{
 				V[15] = 1;
 			}
@@ -273,18 +274,18 @@ bool Chip8::cycle()
 			{
 				V[15] = 0;
 			}
-			V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F) >> 4];
+			V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4];
 			pc += 2;
 			break;	
 		case 0x8005:
 			//	VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
 			if((V[(opcode & 0x0F00) >> 8] < V[(opcode & 0x00F0) >> 4]))
 			{
-				V[15] = 1;
+				V[15] = 0;
 			}
 			else
 			{
-				V[15] = 0;
+				V[15] = 1;
 			}
 			V[(opcode & 0x0F00) >> 8] -= V[(opcode & 0x00F0) >> 4];
 			pc += 2;
@@ -380,7 +381,7 @@ bool Chip8::cycle()
 			//Sets I to the location of the sprite for the character in VX.Characters 0 - F(in hexadecimal) are represented by a 4x5 font.
 			//Font lookup table is from 0x0000 - 0x0010 so the hex character alone will point to its alternative address 
 			//Going to store fonts from address 0x0010 - 0x003E so add lookup address to that
-			I = memory[V[(opcode & 0x0F00) >> 8] & 0xF];
+			I = memory[V[(opcode & 0x0F00) >> 8]];
 			pc += 2;
 			break;
 		case 0xF033:
