@@ -8,6 +8,7 @@ A CHIP-8 emulator written in C++ to teach myself how to program a basic emulator
     * ROM too big
     * Uncompatible memory types
 4. Add crash handling
+5. Add user choosing ROM
 
 ## Input
 Using control method from here: http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
@@ -43,22 +44,22 @@ Storing the font lookup table from 0x0000 - 0x0010 (memory[0] - memory[0xF]) and
 
 |Hex Number| Memory Value|
 |----------|-------------|
-|0|30|
-|1|39|
+|0|32|
+|1|3B|
 |2|22| 
-|3|2A| 
-|4|3E| 
+|3|2C| 
+|4|40| 
 |5|20| 
 |6|24| 
-|7|34| 
-|8|26| 
-|9|28| 
-|A|2E| 
-|B|18|
-|C|14| 
-|D|1C|
-|E|10|
-|F|12|
+|7|36| 
+|8|28| 
+|9|2A| 
+|A|31| 
+|B|1A|
+|C|16| 
+|D|1E|
+|E|12|
+|F|14|
 
 ### Core Methods
 **Initialise**:
