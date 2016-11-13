@@ -64,12 +64,12 @@ void Chip8::load(std::string rom_name)
 		std::streampos size;
 		//std::ios::ate sets position to end of file so we can get the size
 		std::ifstream rom(rom_name.c_str(), std::ios::in|std::ios::binary|std::ios::ate);
-		if(rom.is_open())
-		{	
+		if (rom.is_open())
+		{
 			//Create array to take in binary file data
 			char * mblock;
 			size = rom.tellg();
-			mblock = new char [size];
+			mblock = new char[size];
 			//Set position back to start of file
 			rom.seekg(0, std::ios::beg);
 			//Read memory into array called mblock
@@ -85,7 +85,11 @@ void Chip8::load(std::string rom_name)
 			}
 			std::cout << "ROM LOADED" << std::endl;
 		}
-
+		else
+		{
+			std::cout << "Unable to load ROM" << std::endl;
+			exit(0);
+		}
 	}
 
 bool Chip8::cycle()

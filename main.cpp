@@ -1,13 +1,29 @@
 #include <SDL.h>
 #include <iostream>
 #include "chip8.h"
+#include <string>
+#include <cstdlib>
 
 //Prototypes
 int close(SDL_Window* gWindow);
 
 int main(int argc, char **argv)
 {	
+	// Draw flag for writing to screen
 	bool drawFlag = false;
+
+	//Get ROM name
+	std::string rom_name;
+	std::cout << "ROM name: ";
+	std::cin >> rom_name;
+	// If input fails
+	if (std::cin.fail())
+	{
+		std::cout << "\n\nInvalid Name\n\n" << std::endl;
+		return 0;
+	}
+	std::cout << std::endl;
+
 	//Create Chip8 Object
 	Chip8 chip8;
 	//Setup SDL2
@@ -52,8 +68,8 @@ int main(int argc, char **argv)
 	SDL_RenderPresent( gRenderer );
 
 
-	//Load ROM	
-	chip8.load("TETRIS");
+	//Load ROM
+	chip8.load(rom_name);
 
 	//Create event for processing key presses
 	SDL_Event keysPressed;
@@ -141,6 +157,11 @@ int main(int argc, char **argv)
 		if (currentKeyStates[SDL_SCANCODE_P])
 		{
 			chip8.dumpRegisters();
+		}
+		// Exit
+		if (currentKeyStates[SDL_SCANCODE_ESCAPE])
+		{
+			exit(0);
 		}
 
 		
