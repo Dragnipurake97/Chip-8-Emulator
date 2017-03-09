@@ -2,7 +2,7 @@
 A CHIP-8 emulator written in C++ using SDL to handle graphical output.
 
 ## Input
-Using control method from here: http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
+Using keyboard control schema from here: http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
 ```
 Keypad                   Keyboard
 +-+-+-+-+                +-+-+-+-+
@@ -52,22 +52,27 @@ Storing the font lookup table from 0x0000 - 0x0010 (memory[0] - memory[0xF]) and
 |E|12|
 |F|14|
 
-### Core Methods
-**Initialise**:
+### CHIP8 Methods
+**Constructor**:
 > This method is a constructor and loads the font table into memory, resets all of the registers, stack and such.
 
-**Load ROM**:
-> Reads a binary file and loads it into memory.
+**load**:
+> Reads a binary file from the ROMS directory and loads it into memory.
 
-**Cycle**:
+**cycle**:
 > This is the main loop of the emulator and deals with the fetch>decode>execute cycle. This method should occur 60 times a second.
 
-**getKeys**:
-> This clears the keys currently stored and then gets the current keys pressed and stores them.
+**updateScreen**:
+> Updates the screen with from the screen[] array and clears the draw flag.
 
-**dumpReigsters**:
+**returnDraw**:
+> Returns the draw flag.
+
+**dumpRegisters**:
 > Prints all of the values for registers and such to help with debuging.
 
+**clearKeys**:
+> Clears the key[] array to allow next key presses to be uodated.
 
 Resources:
 http://lazyfoo.net/tutorials/SDL/index.php   
