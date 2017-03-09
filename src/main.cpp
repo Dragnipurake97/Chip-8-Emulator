@@ -1,7 +1,5 @@
-#include <SDL.h>
 #include <iostream>
 #include "chip8.h"
-#include <string>
 #include <cstdlib>
 
 //Prototypes
@@ -70,10 +68,6 @@ int main(int argc, char **argv)
 
 	//Load ROM
 	chip8.load(rom_name);
-
-	//Create event for processing key presses
-	SDL_Event keysPressed;
-	
 
 	//Take snapshot of keyboard 
 	const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);

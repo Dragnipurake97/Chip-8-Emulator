@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
-#include <string>
 #include <time.h>
 #include "chip8.h"
 
@@ -61,6 +60,7 @@ Chip8::Chip8()
 
 void Chip8::load(std::string rom_name)
 	{
+		rom_name = "../ROMS/" + rom_name;
 		std::streampos size;
 		//std::ios::ate sets position to end of file so we can get the size
 		std::ifstream rom(rom_name.c_str(), std::ios::in|std::ios::binary|std::ios::ate);
