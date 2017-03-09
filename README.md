@@ -1,13 +1,5 @@
 # Chip-8-Emulator
-A CHIP-8 emulator written in C++ to teach myself how to program a basic emulator. This will use SDL2 to handle graphics.
-
-## To Do
-1. Shift all functions into chip8.cpp so all variables are private
-2. Add SDL beeps for when sound_timer == 0
-3. Add exception handling:
-    * ROM too big
-    * Uncompatible memory types
-4. Add crash handling
+A CHIP-8 emulator written in C++ using SDL to handle graphical output.
 
 ## Input
 Using control method from here: http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
@@ -78,6 +70,6 @@ Storing the font lookup table from 0x0000 - 0x0010 (memory[0] - memory[0xF]) and
 
 
 Resources:
-http://lazyfoo.net/tutorials/SDL/index.php 
-http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
+http://lazyfoo.net/tutorials/SDL/index.php   
+http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/  
 http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
