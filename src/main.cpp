@@ -170,11 +170,6 @@ int main(int argc, char **argv)
 			SDL_RenderPresent(gRenderer);
 		}
 
-		
-		//Debug delay
-		//SDL_Delay(40);
-
-
 
 		//Delay for 60hz roughly takes 2ms for a cycle but not perfect
 		SDL_Delay(10);
